@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>LogiTrack | Şoförler</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #070b14;
+            color: #e5e7eb;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top right, rgba(212,175,55,0.12), transparent 34%),
+                linear-gradient(135deg, #070b14, #111827);
+        }
+
+        .sidebar {
+            width: 270px;
+            background: rgba(3, 7, 18, 0.96);
+            color: white;
+            padding: 32px 26px;
+            border-right: 1px solid rgba(212,175,55,0.22);
+            box-shadow: 12px 0 35px rgba(0,0,0,0.35);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 38px;
+        }
+
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #d4af37, #facc15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111827;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: 0 12px 26px rgba(250,204,21,0.22);
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        .brand-text span {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            margin: 14px 0;
+            padding: 13px 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(212,175,55,0.12);
+            color: #facc15;
+        }
+
+        .sidebar .active {
+            background: linear-gradient(135deg, rgba(212,175,55,0.24), rgba(250,204,21,0.10));
+            color: #facc15;
+            border: 1px solid rgba(212,175,55,0.25);
+        }
+
+        .main {
+            flex: 1;
+            padding: 34px;
+        }
+
+        .topbar, .form-card, .table-card {
+            background: rgba(255,255,255,0.07);
+            padding: 28px;
+            border-radius: 22px;
+            margin-bottom: 26px;
+            border: 1px solid rgba(255,255,255,0.10);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar h1 {
+            margin: 0;
+            color: white;
+            font-size: 34px;
+        }
+
+        .topbar h1 span {
+            color: #d4af37;
+        }
+
+        .topbar p {
+            margin: 8px 0 0;
+            color: #94a3b8;
+        }
+
+        .form-card h2, .table-card h2 {
+            margin-top: 0;
+            color: white;
+            font-size: 24px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 13px;
+        }
+
+        input {
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.16);
+        }
+
+        button {
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37, #facc15);
+            color: #111827;
+            border: none;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            box-shadow: 0 12px 25px rgba(250,204,21,0.18);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.09);
+        }
+
+        th {
+            color: #facc15;
+            background: rgba(0,0,0,0.22);
+            font-size: 14px;
+        }
+
+        td {
+            color: #e5e7eb;
+        }
+
+        .status {
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid rgba(250,204,21,0.26);
+            background: rgba(250,204,21,0.14);
+            color: #facc15;
+        }
+        .delete-link {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(239,68,68,0.16);
+    color: #fca5a5;
+    border: 1px solid rgba(239,68,68,0.35);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.delete-link:hover {
+    background: rgba(239,68,68,0.28);
+}
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">LT</div>
+            <div class="brand-text">
+                <strong>LogiTrack</strong>
+                <span>Fleet Control System</span>
+            </div>
+        </div>
+
+        <a href="/dashboard/" class="active">Ana Sayfa</a>
+        <a href="/araclar/">Araçlar</a>
+        <a href="/soforler/">Şoförler</a>
+        <a href="/seferler/">Seferler</a>
+        <a href="/raporlar/">Raporlar</a>
+        <a href="/canli-takip/">Canlı Takip</a>
+        <a href="/cikis/">Güvenli Çıkış</a>
+    </div>
+
+    <div class="main">
+
+        <div class="topbar">
+            <h1>Şoför <span>Yönetimi</span></h1>
+            <p>Şoförlerin iletişim, ehliyet ve aktiflik bilgilerini yönetin.</p>
+        </div>
+
+        <div class="form-card">
+            <h2>Yeni Şoför Ekle</h2>
+            {% if hata %}
+<p style="color:#f87171; font-weight:bold; margin-bottom:15px;">
+    {{ hata }}
+</p>
+{% endif %}
+
+            <form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="ad_soyad" placeholder="Ad Soyad">
+
+    <input type="text"
+       name="telefon"
+       placeholder="Telefon"
+       maxlength="11"
+       pattern="[0-9]{10,11}"
+       title="Telefon numarası sadece rakamlardan oluşmalı ve 10-11 haneli olmalıdır.">
+
+    <input type="text" name="ehliyet_no" placeholder="Ehliyet No">
+
+    <input type="text"
+           name="username"
+           placeholder="Kullanıcı Adı">
+
+    <input type="password"
+           name="password"
+           placeholder="Şifre">
+
+    <button type="submit">Şoför Ekle</button>
+</form>
+        </div>
+
+        <div class="table-card">
+            <h2>Kayıtlı Şoförler</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>Telefon</th>
+                        <th>Ehliyet No</th>
+                        <th>Durum</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for sofor in soforler %}
+                    <tr>
+                        <td>{{ sofor.ad_soyad }}</td>
+                        <td>{{ sofor.telefon }}</td>
+                        <td>{{ sofor.ehliyet_no }}</td>
+                        <td><span class="status">Aktif</span></td>
+                        <td>
+    <a class="delete-link"
+       href="/sofor-sil/{{ sofor.id }}/">
+       Sil
+    </a>
+</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">Henüz şoför kaydı yok.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const telefonInput = document.querySelector('input[name="telefon"]');
+
+    telefonInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+</script>
+</body>
+</html>

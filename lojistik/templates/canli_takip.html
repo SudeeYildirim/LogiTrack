@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>LogiTrack | Canlı Takip</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #070b14;
+            color: #e5e7eb;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top right, rgba(212,175,55,0.12), transparent 34%),
+                linear-gradient(135deg, #070b14, #111827);
+        }
+
+        .sidebar {
+            width: 270px;
+            background: rgba(3, 7, 18, 0.96);
+            padding: 32px 26px;
+            border-right: 1px solid rgba(212,175,55,0.22);
+            box-shadow: 12px 0 35px rgba(0,0,0,0.35);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 38px;
+        }
+
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #d4af37, #facc15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111827;
+            font-weight: 900;
+            font-size: 20px;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 22px;
+            letter-spacing: 1px;
+            color: white;
+        }
+
+        .brand-text span {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            margin: 14px 0;
+            padding: 13px 15px;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+
+        .sidebar a:hover, .sidebar .active {
+            background: rgba(212,175,55,0.12);
+            color: #facc15;
+        }
+
+        .main {
+            flex: 1;
+            padding: 34px;
+        }
+
+        .topbar, .map-card, .vehicle-card {
+            background: rgba(255,255,255,0.07);
+            padding: 28px;
+            border-radius: 22px;
+            margin-bottom: 26px;
+            border: 1px solid rgba(255,255,255,0.10);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar h1 {
+            margin: 0;
+            color: white;
+            font-size: 34px;
+        }
+
+        .topbar h1 span {
+            color: #d4af37;
+        }
+
+        .topbar p {
+            margin: 8px 0 0;
+            color: #94a3b8;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        #map {
+            width: 100%;
+            height: 560px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(212,175,55,0.28);
+        }
+
+        .vehicle-card h2 {
+            margin-top: 0;
+            color: white;
+        }
+
+        .track-item {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .track-item strong {
+            display: block;
+            color: #facc15;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .track-item p {
+            margin: 6px 0;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .progress {
+            width: 100%;
+            height: 9px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.12);
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            width: 65%;
+            background: linear-gradient(135deg, #d4af37, #facc15);
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 11px;
+            border-radius: 20px;
+            background: rgba(250,204,21,0.14);
+            color: #facc15;
+            border: 1px solid rgba(250,204,21,0.26);
+            font-size: 13px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">LT</div>
+            <div class="brand-text">
+                <strong>LogiTrack</strong>
+                <span>Fleet Control System</span>
+            </div>
+        </div>
+
+        <a href="/dashboard/">Ana Sayfa</a>
+        <a href="/araclar/">Araçlar</a>
+        <a href="/soforler/">Şoförler</a>
+        <a href="/seferler/">Seferler</a>
+        <a href="/raporlar/">Raporlar</a>
+        <a href="/canli-takip/" class="active">Canlı Takip</a>
+        <a href="/cikis/">Güvenli Çıkış</a>
+    </div>
+
+    <div class="main">
+
+        <div class="topbar">
+            <h1>Canlı <span>Takip</span></h1>
+            <p>Araçların güzergah ve konum durumlarını harita üzerinden izleyin.</p>
+        </div>
+
+        <div class="content-grid">
+
+            <div class="map-card">
+                <div id="map"></div>
+            </div>
+
+            <div class="vehicle-card">
+                <h2>Aktif Araçlar</h2>
+
+                {% for sefer in seferler %}
+                <div class="track-item">
+                    <strong>{{ sefer.arac.plaka }}</strong>
+                    <p>Şoför: {{ sefer.sofor.ad_soyad }}</p>
+                    <p>Rota: {{ sefer.cikis_noktasi }} → {{ sefer.varis_noktasi }}</p>
+                    <p>Canlı Takip Aktif</p>
+
+                    <div class="progress">
+                        <span></span>
+                    </div>
+
+                    <span class="status">{{ sefer.durum }}</span>
+                </div>
+                {% empty %}
+                <div class="track-item">
+                    <strong>Kayıt yok</strong>
+                    <p>Henüz takip edilecek sefer bulunmuyor.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var map = L.map('map').setView([40.5, 30.5], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var cityCoords = {
+        "istanbul": [41.0082, 28.9784],
+        "ankara": [39.9334, 32.8597],
+        "izmir": [38.4237, 27.1428],
+        "bursa": [40.1885, 29.0610],
+        "kocaeli": [40.7654, 29.9408],
+        "sakarya": [40.7569, 30.3781],
+        "tekirdag": [40.9780, 27.5110],
+        "edirne": [41.6771, 26.5557],
+        "antalya": [36.8969, 30.7133],
+        "eskisehir": [39.7767, 30.5206],
+        "konya": [37.8714, 32.4846],
+        "adana": [37.0000, 35.3213],
+        "kayseri": [38.7205, 35.4826],
+        "samsun": [41.2867, 36.33]
+    };
+
+    function normalizeCity(city) {
+        return city
+            .toLowerCase()
+            .replace("ı", "i")
+            .replace("ğ", "g")
+            .replace("ü", "u")
+            .replace("ş", "s")
+            .replace("ö", "o")
+            .replace("ç", "c")
+            .trim();
+    }
+
+    function getCoord(city) {
+        var key = normalizeCity(city);
+        return cityCoords[key] || [40.7654, 29.9408];
+    }
+
+    function interpolate(from, to, progress) {
+        return [
+            from[0] + (to[0] - from[0]) * progress,
+            from[1] + (to[1] - from[1]) * progress
+        ];
+    }
+
+    var truckIcon = L.divIcon({
+        html: '<div style="font-size:34px; filter: drop-shadow(0 0 8px #facc15);">🚛</div>',
+        className: '',
+        iconSize: [38, 38]
+    });
+
+    var startIcon = L.divIcon({
+        html: '<div style="width:18px;height:18px;background:#22c55e;border:3px solid white;border-radius:50%;box-shadow:0 0 12px #22c55e;"></div>',
+        className: '',
+        iconSize: [18, 18]
+    });
+
+    var finishIcon = L.divIcon({
+        html: '<div style="width:22px;height:22px;background:#ef4444;border:3px solid white;border-radius:50%;box-shadow:0 0 12px #ef4444;"></div>',
+        className: '',
+        iconSize: [22, 22]
+    });
+
+    var routes = [
+        {% for sefer in seferler %}
+        {
+            plaka: "{{ sefer.arac.plaka|escapejs }}",
+            sofor: "{{ sefer.sofor.ad_soyad|escapejs }}",
+            fromName: "{{ sefer.cikis_noktasi|escapejs }}",
+            toName: "{{ sefer.varis_noktasi|escapejs }}",
+            status: "{{ sefer.durum|escapejs }}"
+        },
+        {% endfor %}
+    ];
+
+    var allPoints = [];
+
+    routes.forEach(function(route) {
+        var from = getCoord(route.fromName);
+        var to = getCoord(route.toName);
+
+        var progress = route.status === "Tamamlandı" ? 1 : 0.55;
+        var current = interpolate(from, to, progress);
+
+        allPoints.push(from);
+        allPoints.push(to);
+        allPoints.push(current);
+
+        L.polyline([from, current], {
+            color: '#facc15',
+            weight: 6,
+            opacity: 0.95
+        }).addTo(map);
+
+        if (progress < 1) {
+            L.polyline([current, to], {
+                color: '#64748b',
+                weight: 5,
+                opacity: 0.65,
+                dashArray: '10, 10'
+            }).addTo(map);
+        }
+
+        L.marker(from, { icon: startIcon })
+            .addTo(map)
+            .bindPopup("<b>Başlangıç:</b> " + route.fromName);
+
+        L.marker(to, { icon: finishIcon })
+            .addTo(map)
+            .bindPopup("<b>Varış:</b> " + route.toName);
+
+        L.marker(current, { icon: truckIcon })
+            .addTo(map)
+            .bindPopup(
+                "<b>" + route.plaka + "</b><br>" +
+                "Şoför: " + route.sofor + "<br>" +
+                "Rota: " + route.fromName + " → " + route.toName + "<br>" +
+                "Durum: " + route.status + "<br>" +
+                "İlerleme: %" + Math.round(progress * 100)
+            );
+    });
+
+    if (allPoints.length > 0) {
+        map.fitBounds(allPoints, { padding: [40, 40] });
+    }
+</script>
+
+</body>
+</html>
