@@ -73,3 +73,41 @@ Bu proje, Yazılım Mühendisliği eğitimi kapsamında geliştirilmiş olup loj
 ## Geliştirici
 
 **Sude Yıldırım**
+
+# Ekran Görüntüleri
+
+## Yönetici Girişi
+
+![Yönetici Girişi](filotakip/screenshots/yonetici_giris.png)
+
+## Ana Sayfa
+
+![Ana Sayfa](filotakip/screenshots/anasayfa.png)
+
+## Araç Yönetimi
+
+![Araçlar](filotakip/screenshots/araclar.png)
+
+## Şoför Yönetimi
+
+![Şoförler](filotakip/screenshots/soforler.png)
+
+## Sefer Yönetimi
+
+![Seferler](filotakip/screenshots/seferler.png)
+
+## Canlı Takip
+
+![Canlı Takip](filotakip/screenshots/canli_takip.png)
+
+## Raporlar
+
+![Raporlar](filotakip/screenshots/raporlar.png)
+
+## Şoför Girişi
+
+![Şoför Girişi](filotakip/screenshots/sofor_giris.png)
+
+## Şoför Paneli
+
+![Şoför Paneli](filotakip/screenshots/sofor_panel.png)
